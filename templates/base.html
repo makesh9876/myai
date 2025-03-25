@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    <style>
+        /* Color Variables */
+        :root {
+            --primary: #4A6FFF;
+            --primary-dark: #3D5CD3;
+            --secondary: #6C63FF;
+            --accent: #FF6584;
+            --light: #F8F9FA;
+            --dark: #343A40;
+            --text: #212529;
+            --gradient-bg: linear-gradient(120deg, #4A6FFF 0%, #6C63FF 100%);
+        }
+
+        /* Base Styles */
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text);
+            background-color: #f5f7fa;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Content area */
+        .content {
+            flex: 1;
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Card styling */
+        .card {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 10px 10px 0 0 !important;
+            padding: 20px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        /* Navbar styling */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            padding: 15px 30px;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary) !important;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 24px;
+            background: var(--gradient-bg);
+            margin-right: 10px;
+            border-radius: 4px;
+        }
+
+        .nav-link {
+            color: var(--dark) !important;
+            font-weight: 500;
+            margin: 0 10px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary) !important;
+        }
+
+        /* Button styling */
+        .btn {
+            border-radius: 6px;
+            padding: 8px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--gradient-bg);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(74, 111, 255, 0.3);
+        }
+
+        .btn-outline-danger {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-outline-danger:hover {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        /* Footer styling */
+        .footer {
+            background: white;
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+            box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.05);
+            color: var(--dark);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 10px 15px;
+            }
+            
+            .content {
+                padding: 20px 15px;
+            }
+        }
+
+        /* Special elements */
+        .feature-icon {
+            font-size: 2rem;
+            background: var(--gradient-bg);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--gradient-bg);
+            border-radius: 2px;
+        }
+
+        /* Animation for cards */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+      {% if user.is_authenticated %}
+        <a class="navbar-brand" href="{% url 'dashboard' %}">MyAi</a>
+        {% else %}
+        <a class="navbar-brand" href="{% url 'entry' %}">MyAi</a>
+        {% endif %}
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            {% if user.is_authenticated %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'assistant-files' %}">Assistant Files</a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'assistant-instructions' %}">Assistant Instructions</a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'entry' %}">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'contact' %}">Contact</a>
+              </li>
+            {% endif %}
+          </ul>
+          {% if user.is_authenticated %}
+          <form method="post" action="{% url 'logout' %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger">Logout</button>
+          </form>
+          {% else %}
+          <a href="{% url 'login' %}" class="btn btn-primary mr-2">Login</a>
+          <a href="{% url 'signup' %}" class="btn btn-outline-primary">Register</a>
+          {% endif %}
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <div class="content">
+        {% block content %}
+
+        {% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-md-left text-center">
+                    &copy; 2025 MyAi. All Rights Reserved.
+                </div>
+                <div class="col-md-6 text-md-right text-center">
+                    <!-- <a href="#" class="text-muted mx-2">Privacy Policy</a>
+                    <a href="#" class="text-muted mx-2">Terms of Service</a> -->
+                    <a href="{% url 'contact' %}" class="text-muted mx-2">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>

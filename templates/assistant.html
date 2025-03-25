@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+
+{% block title %}File Manager | MyAI{% endblock %}
+
+{% block content %}
+<div class="container animate-fade-in">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="section-title">Your Files</h2>
+            <p class="text-muted">Manage the documents used with your AI assistant</p>
+        </div>
+        <div class="col-md-4 text-md-right">
+            <button class="btn btn-primary" data-toggle="modal" data-target="#uploadModal">
+                <i class="fas fa-upload mr-2"></i>Upload File
+            </button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            {% if all_files %}
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>File Name</th>
+                                <th>Created At</th>
+                                <th>Status</th>
+                                <th>Size (KB)</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in all_files %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="feature-icon mr-2">
+                                            {% if ".pdf" in item.name|lower %}
+                                            <i class="far fa-file-pdf"></i>
+                                            {% elif ".docx" in item.name|lower %}
+                                            <i class="far fa-file-word"></i>
+                                            {% elif ".txt" in item.name|lower %}
+                                            <i class="far fa-file-alt"></i>
+                                            {% elif ".json" in item.name|lower %}
+                                            <i class="far fa-file-code"></i>
+                                            {% elif ".md" in item.name|lower %}
+                                            <i class="far fa-file-alt"></i>
+                                            {% else %}
+                                            <i class="far fa-file"></i>
+                                            {% endif %}
+                                        </span>
+                                        <span>{{ item.name }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ item.created_on }}</td>
+                                <td>
+                                    <span class="badge {% if item.status == 'Available' %}badge-success{% else %}badge-warning{% endif %} px-2 py-1">
+                                        {% if item.status == 'Available' %}<i class="fas fa-check-circle mr-1"></i>{% else %}<i class="fas fa-clock mr-1"></i>{% endif %}
+                                        {{ item.status }}
+                                    </span>
+                                </td>
+                                <td>{{ item.size|floatformat:2 }}</td>
+                                <td class="text-center">
+                                    <form method="post" action="{% url 'delete-file' item.id %}" class="delete-form d-inline-block">
+                                        {% csrf_token %}
+                                        <div class="delete-btn-container">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm delete-btn">
+                                                <i class="fas fa-trash-alt mr-1"></i>Delete
+                                            </button>
+                                            <div class="delete-spinner d-none">
+                                                <div class="spinner-border text-danger" role="status" style="width: 1.5rem; height: 1.5rem;">
+                                                    <span class="sr-only">Deleting...</span>
+                                                </div>
+                                                <span class="ml-2 text-danger">Deleting...</span>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="far fa-folder-open" style="font-size: 3rem; color: var(--primary-dark);"></i>
+                    </div>
+                    <h4>No files yet</h4>
+                    <p class="text-muted">Upload your first file to get started</p>
+                    <button class="btn btn-primary mt-2" data-toggle="modal" data-target="#uploadModal">
+                        <i class="fas fa-upload mr-2"></i>Upload File
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">Upload New File</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="uploadForm" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="fileInput" name="file" accept=".pdf,.docx,.txt,.json,.md" required>
+                            <label class="custom-file-label" for="fileInput">Choose file</label>
+                        </div>
+                        <small class="form-text text-muted mt-2">
+                            Accepted formats: PDF, DOCX, TXT, JSON, MD. Max size: 10MB
+                        </small>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-3">Upload File</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSS for delete spinner -->
+<style>
+    .delete-btn-container {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .delete-spinner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Animation for row deletion */
+    @keyframes fadeOutRow {
+        from { opacity: 1; }
+        to { opacity: 0; transform: translateX(10px); }
+    }
+    
+    .deleting-row {
+        animation: fadeOutRow 0.5s ease forwards;
+    }
+</style>
+
+<!-- JavaScript -->
+<script>
+    // Custom file input label
+    document.querySelector('.custom-file-input').addEventListener('change', function (e) {
+        var fileName = e.target.files[0].name;
+        var nextSibling = e.target.nextElementSibling;
+        nextSibling.innerText = fileName;
+    });
+
+    document.getElementById("uploadForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        let fileInput = document.getElementById("fileInput");
+        let file = fileInput.files[0];
+        let uploadButton = this.querySelector("button[type='submit']");
+        let allowedExtensions = [".pdf", ".docx", ".txt", ".json", ".md"];
+        let formData = new FormData(this);
+
+        if (!file) {
+            alert("Please select a file.");
+            return;
+        }
+
+        let fileExt = file.name.split('.').pop().toLowerCase();
+        if (!allowedExtensions.includes(`.${fileExt}`)) {
+            alert("Invalid file type. Allowed types: PDF, DOCX, TXT, JSON, MD.");
+            return;
+        }
+
+        // File size validation (max 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert("File size exceeds the 10MB limit.");
+            return;
+        }
+
+        // Disable button and show loading state
+        uploadButton.disabled = true;
+        uploadButton.innerHTML = `<span class="spinner-border spinner-border-sm mr-2" role="status"></span> Uploading...`;
+
+        fetch("{% url 'upload-file' %}", {
+            method: "POST",
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json()) 
+        .then(data => {
+            uploadButton.disabled = false;
+            uploadButton.innerHTML = "Upload File";
+
+            if (data.error) {
+                alert(data.error);
+            } else {
+                $("#uploadModal").modal("hide");
+                document.getElementById("uploadForm").reset();
+                document.querySelector('.custom-file-label').innerText = "Choose file";
+
+                $(".modal-backdrop").remove();
+                $("body").removeClass("modal-open");
+
+                // Refresh the table content
+                fetch("{% url 'assistant-files' %}")
+                    .then(response => response.text())
+                    .then(html => {
+                        let tempDom = document.createElement("div");
+                        tempDom.innerHTML = html;
+                        let newContent = tempDom.querySelector(".content").innerHTML;
+                        document.querySelector(".content").innerHTML = newContent;
+
+                        // Rebind all event handlers
+                        bindAllEvents();
+                    });
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            uploadButton.disabled = false;
+            uploadButton.innerHTML = "Upload File";
+        });
+    });
+
+    $('#uploadModal').on('hidden.bs.modal', function () {
+        document.getElementById("uploadForm").reset();
+        document.querySelector('.custom-file-label').innerText = "Choose file";
+        $(".modal-backdrop").remove();
+        $("body").removeClass("modal-open");
+    });
+
+    function bindDeleteEvents() {
+        document.querySelectorAll(".delete-form").forEach(form => {
+            form.addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                if (!confirm("Are you sure you want to delete this file?")) {
+                    return;
+                }
+
+                const container = form.querySelector(".delete-btn-container");
+                const button = form.querySelector(".delete-btn");
+                const spinner = form.querySelector(".delete-spinner");
+                const row = form.closest("tr");
+
+                // Show spinner, hide button
+                button.classList.add("d-none");
+                spinner.classList.remove("d-none");
+
+                fetch(form.action, {
+                    method: "POST",
+                    body: new FormData(form),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json()) 
+                .then(data => {
+                    if (data.success) {
+                        // Add deletion animation class
+                        row.classList.add("deleting-row");
+                        
+                        // Remove row after animation completes
+                        setTimeout(() => {
+                            row.remove();
+                            
+                            // Check if table is empty and show empty state
+                            if (document.querySelectorAll("tbody tr").length === 0) {
+                                let tableWrapper = document.querySelector(".table-responsive");
+                                let emptyState = `
+                                    <div class="text-center py-5">
+                                        <div class="mb-3">
+                                            <i class="far fa-folder-open" style="font-size: 3rem; color: var(--primary-dark);"></i>
+                                        </div>
+                                        <h4>No files yet</h4>
+                                        <p class="text-muted">Upload your first file to get started</p>
+                                        <button class="btn btn-primary mt-2" data-toggle="modal" data-target="#uploadModal">
+                                            <i class="fas fa-upload mr-2"></i>Upload File
+                                        </button>
+                                    </div>
+                                `;
+                                tableWrapper.parentNode.innerHTML = emptyState;
+                                
+                                // Rebind the upload button event
+                                bindModalEvents();
+                            }
+                        }, 500);
+                    } else {
+                        alert("Error deleting file: " + (data.message || "Unknown error"));
+                        button.classList.remove("d-none");
+                        spinner.classList.add("d-none");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    button.classList.remove("d-none");
+                    spinner.classList.add("d-none");
+                });
+            });
+        });
+    }
+
+    function bindModalEvents() {
+        document.querySelectorAll('[data-toggle="modal"]').forEach(button => {
+            button.addEventListener('click', function() {
+                let targetModal = document.querySelector(this.getAttribute('data-target'));
+                $(targetModal).modal('show');
+            });
+        });
+    }
+
+    function bindAllEvents() {
+        bindDeleteEvents();
+        bindModalEvents();
+        
+        // Rebind custom file input
+        if (document.querySelector('.custom-file-input')) {
+            document.querySelector('.custom-file-input').addEventListener('change', function (e) {
+                var fileName = e.target.files[0].name;
+                var nextSibling = e.target.nextElementSibling;
+                nextSibling.innerText = fileName;
+            });
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        bindAllEvents();
+    });
+</script>
+
+<!-- Include Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+{% endblock %}

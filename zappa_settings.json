@@ -1,0 +1,18 @@
+{
+    "dev": {
+        "aws_region": "us-east-1",
+        "django_settings": "myai.settings",
+        "exclude": [
+            "boto3",
+            "dateutil",
+            "botocore",
+            "s3transfer",
+            "concurrent"
+        ],
+        "profile_name": "default",
+        "project_name": "myai",
+        "runtime": "python3.12",
+        "s3_bucket": "zappa-rhs0mx92b",
+        "slim_handler": true
+    }
+}

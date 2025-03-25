@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Login</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #1abc9c;
+            --light-bg: #f9fafb;
+            --dark-text: #2c3e50;
+            --light-text: #ecf0f1;
+            --border-radius: 12px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        #username-container {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            padding: 0;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .login-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .login-header p {
+            margin-top: 8px;
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .login-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-text);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #e1e5ea;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: var(--transition);
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .input-field:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            #username-container {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="username-container">
+        <div class="login-header">
+            <h2>Welcome to AI Chat</h2>
+            <p>Please enter a username to continue</p>
+        </div>
+        <div class="login-body">
+            <div class="form-group">
+                <label for="user-name">Username</label>
+                <input type="text" id="user-name" class="input-field" placeholder="Enter your preferred username" autofocus>
+                <div id="error-message" class="error-message">Please enter a valid username</div>
+            </div>
+            <button id="submit-btn" class="submit-btn">Start Chatting</button>
+            <p class="info-text">Your username will be used to identify your chat sessions</p>
+        </div>
+    </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let userName = localStorage.getItem("chat-user-name");
+        let botName = "{{ bot_name }}";
+        
+        if (userName) {
+            // Use Django url template tag instead of direct URL
+            window.location.href = "{% url 'chat' bot_name=bot_name user_name='PLACEHOLDER' %}".replace('PLACEHOLDER', encodeURIComponent(userName));
+        }
+        
+        // Add event listeners
+        const userNameInput = document.getElementById("user-name");
+        const submitBtn = document.getElementById("submit-btn");
+        const errorMessage = document.getElementById("error-message");
+        
+        // Handle submit button click
+        submitBtn.addEventListener("click", function() {
+            saveUserName();
+        });
+        
+        // Handle Enter key press
+        userNameInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                saveUserName();
+            }
+        });
+        
+        // Add input validation
+        userNameInput.addEventListener("input", function() {
+            if (userNameInput.value.trim()) {
+                errorMessage.style.display = "none";
+                userNameInput.style.borderColor = "#e1e5ea";
+            }
+        });
+        
+        function saveUserName() {
+            let inputName = userNameInput.value.trim();
+            
+            if (inputName) {
+                localStorage.setItem("chat-user-name", inputName);
+                // Use Django url template tag instead of direct URL
+                window.location.href = "{% url 'chat' bot_name=bot_name user_name='PLACEHOLDER' %}".replace('PLACEHOLDER', encodeURIComponent(inputName));
+            } else {
+                errorMessage.style.display = "block";
+                userNameInput.style.borderColor = "#e74c3c";
+                userNameInput.focus();
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

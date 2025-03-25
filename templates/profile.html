@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-white border-0 pt-4">
+                    <div class="text-center">
+                        <div class="avatar-circle mb-3">
+                            <span class="avatar-initials">{{ request.user.username|first|upper }}</span>
+                        </div>
+                        <h2 class="font-weight-bold">Welcome, {{ request.user.username }}!</h2>
+                        <p class="text-muted">Manage your API keys and settings</p>
+                    </div>
+                </div>
+                
+                <div class="card-body px-4 py-4">
+                    <!-- Profile Form -->
+                    <form id="profile-form" method="POST" action="{% url 'profile' %}">
+                        {% csrf_token %}
+                        
+                        <div class="form-group">
+                            <label for="namespace" class="font-weight-bold mb-2">
+                                <i class="fas fa-building mr-2 text-primary"></i>Bot Name
+                            </label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-light border-right-0">
+                                        <i class="fas fa-lock text-muted"></i>
+                                    </span>
+                                </div>
+                                <input type="text" class="form-control border-left-0 bg-light" 
+                                       id="namespace" name="namespace" value="{{ namespace }}" 
+                                       placeholder="Enter your namespace name" 
+                                       oninput="validateNamespace(this)" readonly>
+                            </div>
+                            <small class="text-danger" id="namespace-error" style="display: none;">
+                                Only letters are allowed (no spaces or special characters).
+                            </small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pinecone-key" class="font-weight-bold mb-2">
+                                <i class="fas fa-key mr-2 text-primary"></i>Pinecone API Key
+                            </label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-white border-right-0">
+                                        <i class="fas fa-database text-primary"></i>
+                                    </span>
+                                </div>
+                                <input type="password" class="form-control border-left-0" 
+                                       id="pinecone-key" name="pinecone_key" 
+                                       value="{{ pinecone_key }}" 
+                                       placeholder="Enter your Pinecone API key" required>
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-primary border-left-0" 
+                                    type="button" id="toggle-pinecone-visibility">
+                                <i class="fas fa-eye text-primary">show</i>
+                            </button>
+                                </div>
+                            </div>
+                            <small class="text-muted">Your vector database for AI-powered search</small>
+                        </div>
+                        
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-primary btn-block py-2">
+                                <i class="fas fa-save mr-2"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{% url 'chat-lobby' bot_name=request.user.username %}" class="btn btn-success btn-block py-2">
+                            <i class="fas fa-comment-dots mr-2"></i>Chat with My AI
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-white border-0 pb-4">
+                    <div class="text-center">
+                        <small class="text-muted">
+                            Need help with your API keys? 
+                            <a href="{% url 'contact' %}" class="text-primary">Contact us to get help to setup your api key</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Avatar styling */
+    .avatar-circle {
+        width: 80px;
+        height: 80px;
+        background-color: #4A6FFF;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto;
+        box-shadow: 0 4px 10px rgba(74, 111, 255, 0.3);
+    }
+    
+    .avatar-initials {
+        color: white;
+        font-size: 2rem;
+        font-weight: bold;
+    }
+    
+    /* Form styling */
+    .form-control {
+        padding: 0.6rem 0.75rem;
+        border-radius: 6px;
+    }
+    
+    .form-control:focus {
+        border-color: #4A6FFF;
+        box-shadow: 0 0 0 0.2rem rgba(74, 111, 255, 0.25);
+    }
+    
+    .input-group-text {
+        border-radius: 6px 0 0 6px;
+    }
+    
+    /* Button styling */
+    .btn-primary {
+        background: linear-gradient(120deg, #4A6FFF 0%, #6C63FF 100%);
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background: #3D5CD3;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(74, 111, 255, 0.3);
+    }
+    
+    .btn-success {
+        background: linear-gradient(120deg, #28a745 0%, #20c997 100%);
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+    }
+    
+    /* Card styling */
+    .card {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+</style>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/dist/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" />
+
+<script>
+    function validateNamespace(input) {
+        let value = input.value;
+        let cleanedValue = value.replace(/[^a-zA-Z]/g, ''); // Allow only letters (A-Z, a-z)
+        
+        if (value !== cleanedValue) {
+            document.getElementById("namespace-error").style.display = "block"; // Show error message
+        } else {
+            document.getElementById("namespace-error").style.display = "none"; // Hide error message
+        }
+        
+        input.value = cleanedValue; // Update input with only valid characters
+    }
+    
+    // Toggle password visibility
+    document.getElementById('toggle-pinecone-visibility').addEventListener('click', function() {
+        const pineconeInput = document.getElementById('pinecone-key');
+        const eyeIcon = this.querySelector('i');
+        
+        if (pineconeInput.type === 'password') {
+            pineconeInput.type = 'text';
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+        } else {
+            pineconeInput.type = 'password';
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+        }
+    });
+</script>
+{% endblock %}

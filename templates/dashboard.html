@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-6">
+        <h1 class="section-title mb-4">Welcome to MyAi</h1>
+        <p class="lead mb-4">Your intelligent assistant platform for seamless AI-powered conversations and productivity.</p>
+        <div class="mt-5">
+            <a href="{% url 'chat-lobby' bot_name=user.username %}" class="btn btn-primary btn-lg">Chat with Bot</a>
+            <hr>
+            <button class="btn btn-primary btn-lg" onclick="copyLinkToClipboard()">Share Bot Link</button>
+        </div>
+    </div>
+</div>
+
+<!-- Getting Started Steps Section -->
+{% if user.is_authenticated %}
+<div id="setup-steps" class="row mt-5 pt-4">
+    <div class="col-12">
+        <h2 class="section-title text-center">Get Started in 3 Simple Steps</h2>
+        <p class="text-center mb-5">Complete these steps to set up your custom AI assistant</p>
+    </div>
+</div>
+
+<div class="steps-container">
+    <!-- Step 1 -->
+    <div class="row step-card animate-fade-in">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4>1.Setup API Key</h4>
+                    <p class="step-description">Connect your AI by setting up your API key credentials in your profile.</p>
+                    <p><strong>What you'll need:</strong> Your API key from the provider(Pinecone), <a href="{% url 'contact' %}">Need help? contact us</a></p>
+                    <a href="{% url 'profile' %}" class="btn btn-primary">Setup API Key</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="row step-card animate-fade-in" style="animation-delay: 0.2s;">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4>2.Upload Files</h4>
+                    <p class="step-description">Upload reference documents and files for your AI assistant to use during conversations.</p>
+                    <p><strong>Supported formats:</strong> PDF, DOCX, TXT, CSV, and more</p>
+                    <a href="{% url 'assistant-files' %}" class="btn btn-primary">Upload Files</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="row step-card animate-fade-in" style="animation-delay: 0.4s;">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4>3.Add Instructions</h4>
+                    <p class="step-description">Customize how your AI assistant behaves by providing specific instructions.</p>
+                    <p><strong>Make it unique:</strong> Define personality, knowledge areas, and response styles</p>
+                    <a href="{% url 'assistant-instructions' %}" class="btn btn-primary">Add Instructions</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mt-5">
+    <div class="col-12">
+        <h2 class="section-title text-center">Key Features</h2>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card animate-fade-in">
+            <div class="card-body text-center">
+                <div class="feature-icon">💬</div>
+                <h4>Intelligent Conversations</h4>
+                <p>Engage in natural, context-aware dialogues with our advanced AI models.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card animate-fade-in" style="animation-delay: 0.2s;">
+            <div class="card-body text-center">
+                <div class="feature-icon">📄</div>
+                <h4>Custom Instructions</h4>
+                <p>Tailor your AI assistant with specific instructions to match your unique needs.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card animate-fade-in" style="animation-delay: 0.4s;">
+            <div class="card-body text-center">
+                <div class="feature-icon">📚</div>
+                <h4>File Management</h4>
+                <p>Upload and organize files for your assistant to reference during conversations.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copyLinkToClipboard() {
+        // Construct the full URL for the chat lobby
+        const chatLink = window.location.origin + "{% url 'chat-lobby' bot_name=user.username %}";
+        
+        // Copy the link to the clipboard
+        navigator.clipboard.writeText(chatLink)
+            .then(() => {
+                alert("Link copied to clipboard: " + chatLink); // Notify the user
+            })
+            .catch((err) => {
+                console.error("Failed to copy link: ", err);
+                alert("Failed to copy link. Please try again.");
+            });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,7 @@
+django
+djangorestframework
+psycopg2-binary
+zappa
+python-dotenv
+pinecone
+pinecone-plugin-assistant
